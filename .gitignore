@@ -4,4 +4,5 @@ db/pgdata
 .envrc
 dva
 worker/coinbase/config.yaml
+worker/gemini/config.yaml
 saver/postgres/config.yaml

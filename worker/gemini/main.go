@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&configFilePath, "config", "configs/config.yml", "Specify the path to the configuration file for this environmane")
+	flag.StringVar(&configFilePath, "config", "configs/config.yaml", "Specify the path to the configuration file for this environmane")
 	flag.Parse()
 
 	cfgFile, err := ioutil.ReadFile(configFilePath)
@@ -61,11 +61,7 @@ func main() {
 	failOnError(err, "Failed declaring queue")
 
 	coins := []string{
-		"BTC-USD",
-		// "ETH-USD",
-		// "BCH-USD",
-		// "LTC-USD",
-		// "ETC-USD",
+		"btcusd",
 	}
 
 	c := Config{
@@ -87,7 +83,7 @@ func main() {
 
 func get(coin string, conf Config, group *sync.WaitGroup) error {
 	// could this be in the config.yaml?
-	url := fmt.Sprintf("https://api.pro.coinbase.com/products/%s/book?level=2", coin)
+	url := fmt.Sprintf("https://api.gemini.com/v1/book/%s?limit_bids=50&limit_asks=50", coin)
 
 	for {
 		resp, err := http.Get(url)
@@ -103,10 +99,7 @@ func get(coin string, conf Config, group *sync.WaitGroup) error {
 			return err
 		}
 
-		// determine best price, grab all bids/ask +/- $25 of best price
-		// highest bid, lowest ask
-
-		err = Send(conf, "coinbase", b)
+		err = Send(conf, "gemini", b)
 		if err != nil {
 			log.Println("error", err)
 			return err
