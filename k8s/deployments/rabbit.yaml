@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbit
+  labels:
+    app: api
+spec:
+  selector:
+    app: rabbit
+  type: LoadBalancer
+  ports:
+    - port: 15672
+      name: rabbit-ui
+      protocol: TCP
+      targetPort: 15672
+    - port: 15671
+      name: rabbit-ui-2
+      protocol: TCP
+      targetPort: 15671
+    - port: 5672
+      name: rabbit
+      protocol: TCP
+      targetPort: 5672
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: rabbit
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rabbit
+    spec:
+      containers:
+        - name: rabbit
+          imagePullPolicy: Never
+          image: dva_rabbit
+          ports:
+            - name: rabbit-ui
+              containerPort: 15672
+            - name: rabbit-ui-2
+              containerPort: 15671
+            - name: rabbit
+              containerPort: 5672
