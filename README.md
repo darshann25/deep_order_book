@@ -23,10 +23,15 @@ Creating Storage Claim:
 OR
 `make claim`
 
+Running Kubernetes locally
+You can browse to `http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace=default` to view the Kubernetes dashboard.
+If you get the following error `http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace=default` Run the command below
+`kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended/kubernetes-dashboard.yaml`
+
 # Config Files
 Where config files are used you should see a `config-example.yaml`. When running locally
 rename that file to `config.yaml`, then replace values with proper values for given environment
-
+w
 # Database
 When creating creating the database, the `init.sql` will be ran on inital boot.
 Meaning, if you want this to trigger after you have already spun up the project,
@@ -36,3 +41,10 @@ NOTE: this will remove all data in the database, so use this with cation.
 ## Pending Questions
 - DB Scheme: what should the tables look like?
 - How do we handle migrations?
+
+
+## Kubernetes Ingress
+1: Start Nginx Ingress within the CLuster
+	`kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/mandatory.yaml`
+2: Enable Ingress
+	`kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/provider/cloud-generic.yaml`

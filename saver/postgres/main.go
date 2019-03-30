@@ -1,46 +1,54 @@
 package main
 
 import (
-	"bytes"
-	"flag"
-	"io/ioutil"
+	"database/sql"
+	"fmt"
 	"log"
+	"os"
+	"time"
 
 	"github.com/streadway/amqp"
 
 	"github.com/spf13/viper"
+
+	_ "github.com/lib/pq"
 )
 
 var (
 	configFilePath string
 	queueName      string
+	dbName         string
+	dbUser         string
+	dbPassword     string
+	dbHost         string
+	dbPort         string
+	db             *sql.DB
+	q              amqp.Queue
+	channel        *amqp.Channel
 )
 
-func init() {
-	flag.StringVar(&configFilePath, "config", "configs/config.yml", "Specify the path to the configuration file for this environmane")
-	flag.Parse()
-
-	cfgFile, err := ioutil.ReadFile(configFilePath)
-	if err != nil {
-		panic(err)
-	}
-
-	viper.SetConfigType("yaml")
-	viper.ReadConfig(bytes.NewBuffer(cfgFile))
-
-	queueName = viper.GetString("rabbit.queue_name")
+// RawEvent struct representing the scheme of the raw_events table
+type RawEvent struct {
+	ID        int64     `db:"id"`
+	Exchange  string    `db:"exchange"`
+	CreatedAt time.Time `db:"created_at"`
+	Data      []byte    `db:"data"`
 }
 
-func main() {
+func init() {
+	log.Println("Connecting to Rabbit")
+	conn, err := ConnectToRabbit()
+	if err != nil {
+		log.Println("There was an error connection to rabbit: ", err)
+		os.Exit(1)
+	}
+	channel, err = conn.Channel()
+	if err != nil {
+		log.Println("Failed to declare Channel: ", err)
+		os.Exit(1)
+	}
 
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672")
-	failOnError(err, "Failed to connect to RabbitMQ")
-	defer conn.Close()
-
-	ch, err := conn.Channel()
-	failOnError(err, "failed to open channel")
-
-	q, err := ch.QueueDeclare(
+	q, err = channel.QueueDeclare(
 		queueName, // name
 		false,     // durable
 		false,     // delete when usused
@@ -48,31 +56,77 @@ func main() {
 		false,     // no-wait
 		nil,       // arguments
 	)
-	failOnError(err, "Failed to declare Queue")
-
-	messages, err := ch.Consume(
-		q.Name, // queue
-		"",     // consumer
-		true,   // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
-	)
-	failOnError(err, "Dailed to register consumer")
-
-	// TODO: connect to db
-
-	for d := range messages {
-		go func(d amqp.Delivery) {
-			log.Printf("Received a message: %s", d.Body)
-		}(d)
+	if err != nil {
+		log.Println("Failed to declare Queue: ", err)
+		os.Exit(1)
 	}
 
+	// Rabbit
+	queueName = viper.GetString("rabbit.queue_name")
+
+	// Postgres
+	dbName = viper.GetString("db.db_name")
+	dbUser = viper.GetString("db.user")
+	dbPassword = viper.GetString("db.password")
+	dbHost = viper.GetString("db.host")
+	dbPort = viper.GetString("db.port")
+
+	// TODO: Ping DB, if fail exit
+
+	//host=/cloudsql/dva-1-235201:us-central1:dva-db
+
+	dbinfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", dbHost, dbPort, dbUser, dbPassword, dbName)
+	// connStr := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", dbUser, dbPassword, dbHost, dbName)
+	// log.Println("Connection String: ", connStr)
+
+	log.Println("dbinfo: ", dbinfo)
+
+	log.Println("Opening connection to DB")
+	db, err = sql.Open("postgres", dbinfo)
+	if err != nil {
+		fmt.Println("Error connection to DB: ", err)
+		os.Exit(1)
+	}
+
+	log.Println("Pinging DB")
+	err = db.Ping()
+	if err != nil {
+		log.Println("Could not Ping database...exiting: ", err)
+		os.Exit(1)
+	}
+
+	log.Println("Init complete.")
 }
 
-func failOnError(err error, msg string) {
+func main() {
+	defer db.Close()
+	messages, err := channel.Consume(
+		queueName, // queue
+		"",        // consumer
+		true,      // auto-ack
+		false,     // exclusive
+		false,     // no-local
+		false,     // no-wait
+		nil,       // args
+	)
+
 	if err != nil {
-		log.Fatalf("%s: %s", msg, err)
+		log.Println("Dailed to register consumer: ", err)
+		os.Exit(1)
+	}
+
+	for d := range messages {
+		insertTime := time.Now()
+
+		query := `
+					INSERT INTO raw_events(exchange, created_at, data)
+					VALUES ($1, $2, $3)
+					RETURNING id;
+				`
+		_, err := db.Exec(query, "coinbase", &insertTime, d.Body)
+		if err != nil {
+			fmt.Println("error: ", err)
+			continue
+		}
 	}
 }

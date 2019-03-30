@@ -10,5 +10,8 @@ down:
 clean-db:
 	rm -rf ./db/pgdata/*
 
-claim:
- 	k apply -f k8s/storage/database-persistent-volume-claim.yaml
+token:
+	kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
+
+# claim:
+#  	k apply -f k8s/storage/database-persistent-volume-claim.yaml

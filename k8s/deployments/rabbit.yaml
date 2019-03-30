@@ -23,11 +23,15 @@ spec:
       targetPort: 5672
 ---
 
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
   name: rabbit
 spec:
+  selector:
+    matchLabels:
+      app: rabbit # has to match .spec.template.metadata.labels
+  serviceName: rabbit
   replicas: 1
   template:
     metadata:

@@ -8,6 +8,9 @@ import (
 	"log"
 	"net/http"
 	"sync"
+	"time"
+
+	"github.com/streadway/amqp"
 
 	"github.com/spf13/viper"
 )
@@ -33,8 +36,14 @@ func init() {
 }
 
 func main() {
+	var conn *amqp.Connection
 	conn, err := ConnectToRabbit()
-	failOnError(err, "Failed connecting to Rabbit")
+	if err != nil {
+		time.Sleep(5 * time.Second)
+		conn, err = ConnectToRabbit()
+		failOnError(err, "Failed connecting to Rabbit")
+	}
+
 	defer conn.Close()
 
 	ch, err := conn.Channel()
@@ -53,9 +62,9 @@ func main() {
 
 	coins := []string{
 		"BTC-USD",
-		"ETH-USD",
-		"BCH-USD",
-		"LTC-USD",
+		// "ETH-USD",
+		// "BCH-USD",
+		// "LTC-USD",
 		// "ETC-USD",
 	}
 
@@ -93,6 +102,9 @@ func get(coin string, conf Config, group *sync.WaitGroup) error {
 		if err != nil {
 			return err
 		}
+
+		// determine best price, grab all bids/ask +/- $25 of best price
+		// highest bid, lowest ask
 
 		err = Send(conf, b)
 		if err != nil {

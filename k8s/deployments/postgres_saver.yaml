@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: postgres-saver
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres-saver
+    spec:
+      containers:
+        - name: postgres-saver
+          image: dva_postgres_saver
+          ports:
+            - containerPort: 80
+          imagePullPolicy: Never

@@ -1,4 +1,4 @@
-apiVersion: skaffold/v1beta6
+apiVersion: skaffold/v1beta7
 kind: Config
 build:
   artifacts:
@@ -6,20 +6,25 @@ build:
     context: worker/coinbase
     docker:
       dockerfile: worker.Dockerfile
+  - image: dva_db
+    context: db/
+    docker:
+      dockerfile: db.Dockerfile
+  - image: dva_postgres_saver
+    context: saver/postgres
   - image: dva_prometheus
     docker:
       dockerfile: prom.Dockerfile
   - image: dva_rabbit
     docker:
       dockerfile: rabbit.Dockerfile
-  - image: dva_db
-    context: db/
-    docker:
-      dockerfile: db.Dockerfile
 deploy:
   kubectl:
     manifests:
+    - k8s/deployments/bigquery_saver.yaml
     - k8s/deployments/coinbase.worker.yaml
+    - k8s/deployments/postgres.yaml
+    - k8s/deployments/postgres_saver.yaml
     - k8s/deployments/prometheus.yaml
     - k8s/deployments/rabbit.yaml
-    - k8s/deployments/postgres.yaml
+    - k8s/services/postgres.yaml
