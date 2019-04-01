@@ -2,7 +2,7 @@ import requests, json
 import pandas as pd
 
 def main():
-    orderbook = getGeminiData(5000)
+    orderbook = getGeminiData(10000)
     print("Orderbook received")
     orderbook["quantity"] = orderbook["quantity"].astype(float)
     orderbook["price"] = orderbook["price"].astype(float)
