@@ -1,0 +1,69 @@
+version: '3.5'
+
+services:
+  rabbit:
+    container_name: rabbit
+    networks:
+      - dvadev_default
+    build:
+      context: .
+      dockerfile: ./rabbit.Dockerfile
+    image: dva_rabbit
+    ports:
+      - "15671:15671"
+      - "15672:15672"
+      - "5672:5672"
+
+  db:
+    container_name: dva_db
+    networks:
+      - dvadev_default
+    build:
+      context: .
+      dockerfile: ./db/db.Dockerfile
+    image: dva_db
+    restart: always
+    ports:
+        - 5432:5432
+    environment:
+        POSTGRES_USER: ${POSTGRES_USER}
+        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./db/pgdata:/var/lib/postgresql/data
+
+  worker:
+    container_name: dva_worker
+    networks:
+      - dvadev_default
+    depends_on:
+      - rabbit
+    build:
+      context: .
+      dockerfile: ./worker.Dockerfile
+    image: dva_worker
+    ports:
+      # HTTP Port
+      - 80:8080
+
+  prometheus:
+    container_name: dva_prom
+    image: dva_prometheus
+    networks:
+      - dvadev_default
+    build:
+      context: .
+      dockerfile: prom.Dockerfile
+    depends_on:
+      - rabbit
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prom:/etc/prometheus
+
+
+
+networks:
+  dvadev_default:
+    external:
+      name: dvadev_default

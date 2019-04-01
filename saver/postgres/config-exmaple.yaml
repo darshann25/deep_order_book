@@ -1,0 +1,2 @@
+rabbit:
+  queue_name: events

@@ -1,0 +1,7 @@
+rabbit:
+  queue_name: events
+  host: rabbit
+  user: guest
+  password: guest
+  port: 5672
+
