@@ -1,0 +1,45 @@
+.bar.bid {
+    fill: rgba(18, 104, 21, 0.658);
+}
+
+.bar.ask {
+    fill: rgba(153, 3, 3, 0.664);
+}
+
+.bar:hover {
+    fill: #337ab7;
+}
+
+.axis--x path {
+    display: none;
+}
+
+.axis--y path {
+    display: none;
+}
+
+
+
+body {
+    font: 10px sans-serif;
+}
+
+.bar rect {
+    fill: steelblue;
+    shape-rendering: crispEdges;
+}
+
+.bar text {
+    fill: #fff;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+#slider-range-max {
+    width: 50%;
+}

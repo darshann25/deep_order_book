@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta charset="utf-8">
+  <title>Orderbook Visualization</title>
+  <link href="./orderbook.css" rel='stylesheet'>
+  <link href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" rel='stylesheet'>
+  
+</head>
+
+<!-- Body -->
+<div id="orderbook_container">
+    <div id="orderbook"></div>
+    <div align="center">
+        <p>
+            <label for="bins">Bin Size ($):</label>
+            <input type="text" id="bins" readonly style="border:0; color:#f6931f; font-weight:bold;">
+        </p>
+        <div id="slider-range-max"></div>
+        <p>
+            <label for="x_range">Chart X-axis Range:</label>
+        </p>
+        <div id="slider-range" style="width: 85%"></div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="./orderbook.js"></script>
+
+
+
+</body>
+
