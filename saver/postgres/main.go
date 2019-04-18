@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -98,6 +99,12 @@ func init() {
 	log.Println("Init complete.")
 }
 
+// WorkerMessage a message coming from a worker
+type WorkerMessage struct {
+	Exchange string `json:"exchange"`
+	Data     []byte `json:"data"`
+}
+
 func main() {
 	defer db.Close()
 	messages, err := channel.Consume(
@@ -118,12 +125,19 @@ func main() {
 	for d := range messages {
 		insertTime := time.Now()
 
+		var rawData WorkerMessage
+		err := json.Unmarshal(d.Body, &rawData)
+		if err != nil {
+			fmt.Println("JSON Error: ", err)
+			continue
+		}
+
 		query := `
 					INSERT INTO raw_events(exchange, created_at, data)
 					VALUES ($1, $2, $3)
 					RETURNING id;
 				`
-		_, err := db.Exec(query, "coinbase", &insertTime, d.Body)
+		_, err = db.Exec(query, rawData.Exchange, &insertTime, rawData.Data)
 		if err != nil {
 			fmt.Println("error: ", err)
 			continue

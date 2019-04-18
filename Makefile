@@ -2,7 +2,8 @@ up:
 	docker-compose up
 
 up-build:
-	docker-compose up --build
+	docker-compose build --parallel
+	 docker-compose up
 
 down:
 	docker-compose down

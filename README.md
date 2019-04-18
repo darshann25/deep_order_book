@@ -48,3 +48,13 @@ NOTE: this will remove all data in the database, so use this with cation.
 	`kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/mandatory.yaml`
 2: Enable Ingress
 	`kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/provider/cloud-generic.yaml`
+
+
+## Current Table Scheme
+```sql
+CREATE TABLE raw_events (
+ id serial PRIMARY KEY,
+ exchange VARCHAR (10) NOT NULL,
+ created_at TIMESTAMP NOT NULL,
+ data JSON NOT NULL
+);```
