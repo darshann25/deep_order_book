@@ -58,3 +58,9 @@ CREATE TABLE raw_events (
  created_at TIMESTAMP NOT NULL,
  data JSON NOT NULL
 );```
+
+## Running Cleaning Script
+Example (from project root): 
+`python postprocessing/clean_data.py raw_events_2_exchanges_Apr_3rd_2019.csv`
+This will write data to the data directory, with `clean_` attached to the original fileanme
+_Note: uses python3_
