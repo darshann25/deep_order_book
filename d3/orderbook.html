@@ -10,10 +10,10 @@
 
 <!-- Body -->
 <div id="orderbook_container">
-    <div id="orderbook"></div>
+    <div id="orderbook" align="center"></div>
     <div align="center">
-        <p>
-            <label for="bins">Bin Size ($):</label>
+        <p style="padding-left:15%;">
+            <label for="bins" >Bin Size ($):</label>
             <input type="text" id="bins" readonly style="border:0; color:#f6931f; font-weight:bold;">
         </p>
         <div id="slider-range-max"></div>
@@ -21,6 +21,11 @@
             <label for="x_range">Chart X-axis Range:</label>
         </p>
         <div id="slider-range" style="width: 85%"></div>
+        <p>
+            <label for="ts">Timeline:</label>
+            <input type="text" id="ts" readonly style="border:0; color:#f6931f; font-weight:bold;">
+        </p>
+        <div id="ts-slider" style="width: 85%"></div>
     </div>
 </div>
 
