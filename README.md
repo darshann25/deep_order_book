@@ -1,6 +1,11 @@
 # Group Project: Deep Order Book
 
-Things & Stuff
+# Demo
+In order to view the data you need to run an HTTP server. You will also need to have Python3 installed on your machine.
+1. Run the following command from the root of the directory
+`python3 -m http.server`
+2. Browse to `d3/orderbook.html`
+Note: it may take a few seconds for the chart to show.
 
 # Development
 If you are starting the project from the first time
