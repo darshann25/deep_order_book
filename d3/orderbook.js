@@ -3,7 +3,7 @@
 // mini_btc_usd
 // raw_events_2_exchanges_Apr_3rd_2019
 
-d3.csv("raw_events_2_exchanges_Apr_3rd_2019.csv").then(function(data) {
+d3.csv("../data/raw_events_2_exchanges_Apr_3rd_2019.csv").then(function(data) {
     var indexTS = 0;
     var bin_delta = 1; //$1.00, in cents
 
